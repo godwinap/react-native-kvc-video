@@ -44,7 +44,6 @@
 		5A8577242281D1AB00F68E8D /* UIView+FindUIViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8577222281D1AB00F68E8D /* UIView+FindUIViewController.m */; };
 		5A8577272281D25700F68E8D /* KVCVideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8577262281D25700F68E8D /* KVCVideoPlayerViewController.m */; };
 		5A8577282281D25700F68E8D /* KVCVideoPlayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5A8577262281D25700F68E8D /* KVCVideoPlayerViewController.m */; };
-		62BE90E19486D392FD883E77 /* libPods-RNFullscreenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 22118F99A65E78140FD22B64 /* libPods-RNFullscreenClient.a */; };
 		7C8B914A26EA8175E6EA42CB /* libPods-RNFullscreenClient-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C157AF81AE5B7B9FB32300F /* libPods-RNFullscreenClient-tvOS.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		852B71756F8A08364157D915 /* libPods-RNFullscreenClient-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3382F2EB7E00D197298C7A3F /* libPods-RNFullscreenClient-tvOSTests.a */; };
@@ -363,15 +362,12 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RNFullscreenClient/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = RNFullscreenClient/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
-		15A423D967B79454157D13B9 /* Pods-RNFullscreenClient-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient-tvOSTests/Pods-RNFullscreenClient-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		1C157AF81AE5B7B9FB32300F /* libPods-RNFullscreenClient-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNFullscreenClient-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22118F99A65E78140FD22B64 /* libPods-RNFullscreenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNFullscreenClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E47B1E0B4A5D006451C7 /* RNFullscreenClient-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RNFullscreenClient-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* RNFullscreenClient-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RNFullscreenClient-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3382F2EB7E00D197298C7A3F /* libPods-RNFullscreenClient-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RNFullscreenClient-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		42E05BF47605A595694306BE /* Pods-RNFullscreenClient-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient-tvOS.release.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient-tvOS/Pods-RNFullscreenClient-tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		465D2F7E195900D97196F09D /* Pods-RNFullscreenClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient.release.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient/Pods-RNFullscreenClient.release.xcconfig"; sourceTree = "<group>"; };
 		5A8576A622803A8000F68E8D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		5A8576A822803A8800F68E8D /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		5A8576B92281973200F68E8D /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/ios/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
@@ -383,12 +379,9 @@
 		5A8577252281D25700F68E8D /* KVCVideoPlayerViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KVCVideoPlayerViewController.h; sourceTree = "<group>"; };
 		5A8577262281D25700F68E8D /* KVCVideoPlayerViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KVCVideoPlayerViewController.m; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
-		686BB3F5D957E1719CD82B50 /* Pods-RNFullscreenClient-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient-tvOS/Pods-RNFullscreenClient-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
-		BDDBD0DE96FB754A1E751DD8 /* Pods-RNFullscreenClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient.debug.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient/Pods-RNFullscreenClient.debug.xcconfig"; sourceTree = "<group>"; };
-		CB4CB1509EF5FC40B3C85D0F /* Pods-RNFullscreenClient-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RNFullscreenClient-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-RNFullscreenClient-tvOSTests/Pods-RNFullscreenClient-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -421,7 +414,6 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
-				62BE90E19486D392FD883E77 /* libPods-RNFullscreenClient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,19 +584,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		32DF482D79C74FF97913EB5B /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				BDDBD0DE96FB754A1E751DD8 /* Pods-RNFullscreenClient.debug.xcconfig */,
-				465D2F7E195900D97196F09D /* Pods-RNFullscreenClient.release.xcconfig */,
-				686BB3F5D957E1719CD82B50 /* Pods-RNFullscreenClient-tvOS.debug.xcconfig */,
-				42E05BF47605A595694306BE /* Pods-RNFullscreenClient-tvOS.release.xcconfig */,
-				15A423D967B79454157D13B9 /* Pods-RNFullscreenClient-tvOSTests.debug.xcconfig */,
-				CB4CB1509EF5FC40B3C85D0F /* Pods-RNFullscreenClient-tvOSTests.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		5A8576BA2281973200F68E8D /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -669,7 +648,6 @@
 				00E356EF1AD99517003FC87E /* RNFullscreenClientTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				32DF482D79C74FF97913EB5B /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -721,7 +699,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RNFullscreenClient" */;
 			buildPhases = (
-				D61648593EF074B491966D46 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -1203,7 +1180,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		213A0E35083112F77874B32D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1257,28 +1234,6 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-RNFullscreenClient-tvOS-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D61648593EF074B491966D46 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-RNFullscreenClient-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1399,7 +1354,6 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BDDBD0DE96FB754A1E751DD8 /* Pods-RNFullscreenClient.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1421,7 +1375,6 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 465D2F7E195900D97196F09D /* Pods-RNFullscreenClient.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1442,7 +1395,6 @@
 		};
 		2D02E4971E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 686BB3F5D957E1719CD82B50 /* Pods-RNFullscreenClient-tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1470,7 +1422,6 @@
 		};
 		2D02E4981E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 42E05BF47605A595694306BE /* Pods-RNFullscreenClient-tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1498,7 +1449,6 @@
 		};
 		2D02E4991E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 15A423D967B79454157D13B9 /* Pods-RNFullscreenClient-tvOSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1525,7 +1475,6 @@
 		};
 		2D02E49A1E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CB4CB1509EF5FC40B3C85D0F /* Pods-RNFullscreenClient-tvOSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
