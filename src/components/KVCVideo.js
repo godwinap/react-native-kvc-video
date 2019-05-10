@@ -300,6 +300,10 @@ export default class Video extends Component {
       onAudioBecomingNoisy: this._onAudioBecomingNoisy,
       onPictureInPictureStatusChanged: this._onPictureInPictureStatusChanged,
       onRestoreUserInterfaceForPictureInPictureStop: this._onRestoreUserInterfaceForPictureInPictureStop,
+
+      //Props added by Godwin
+      playBtnImg:resolveAssetSource(this.props.playBtnImg),
+      pauseBtnImg:resolveAssetSource(this.props.pauseBtnImg)
     });
 
     const posterStyle = {

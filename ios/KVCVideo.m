@@ -36,6 +36,21 @@ static int const RCTVideoUnset = -1;
   KVCVideoPlayerViewController *_playerViewController;
   NSURL *_videoURL;
   
+  /* Vars defined by 👑Godwin*/
+  
+  UIView *controlsOverlay;
+  UITapGestureRecognizer  *toggleControlsOnTap;
+  UITapGestureRecognizer  *playPauseTapEvent;
+  BOOL showingControls;
+  NSDictionary * _playBtnImg;
+  NSDictionary * _pauseBtnImg;
+  UIImage *PlayBtnImg;
+  UIImage *PauseBtnImg;
+  UIButton *PlayPauseButton;
+  
+  
+  /**************/
+  
   /* Required to publish events */
   RCTEventDispatcher *_eventDispatcher;
   BOOL _playbackRateObserverRegistered;
@@ -110,6 +125,12 @@ static int const RCTVideoUnset = -1;
     _playWhenInactive = false;
     _pictureInPicture = false;
     _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
+    
+    
+    /* 👑Godwin's Var inits*/
+    showingControls = false;
+    
+    /********/
 #if TARGET_OS_IOS
     _restoreUserInterfaceForPIPStopCompletionHandler = NULL;
 #endif
@@ -474,13 +495,7 @@ static int const RCTVideoUnset = -1;
 - (void)playerItemForSource:(NSDictionary *)source withCallback:(void(^)(AVPlayerItem *))handler
 {
   
-  //* Converts Source dictionary to json String
-  NSError * err;
-  NSData *gSoruce = [NSJSONSerialization dataWithJSONObject:source options:0 error:&err];
-  NSString *sourceStr = [[NSString alloc] initWithData:gSoruce encoding:NSUTF8StringEncoding];
-  NSLog([NSString stringWithFormat:@"godwin: KVC Video Started 🥳 %@", sourceStr]);
-  //**//
-  
+  NSLog(@"%@", [NSString stringWithFormat:@"godwin:🥳 KVC Video Started %@", [self convertToString:source]]);
   bool isNetwork = [RCTConvert BOOL:[source objectForKey:@"isNetwork"]];
   bool isAsset = [RCTConvert BOOL:[source objectForKey:@"isAsset"]];
   bool shouldCache = [RCTConvert BOOL:[source objectForKey:@"shouldCache"]];
@@ -1340,12 +1355,15 @@ static int const RCTVideoUnset = -1;
     {
       [self removePlayerLayer];
       [self usePlayerViewController];
+      
     }
     else
     {
       [_playerViewController.view removeFromSuperview];
       _playerViewController = nil;
       [self usePlayerLayer];
+      // Start drawing 👑Godwin's Player Controls over here. 👇🏻
+      [self drawGodwinzVideoControls];
     }
   }
 }
@@ -1466,7 +1484,7 @@ static int const RCTVideoUnset = -1;
   if( _controls )
   {
     _playerViewController.view.frame = self.bounds;
-    
+
     // also adjust all subviews of contentOverlayView
     for (UIView* subview in _playerViewController.contentOverlayView.subviews) {
       subview.frame = self.bounds;
@@ -1478,7 +1496,6 @@ static int const RCTVideoUnset = -1;
     [CATransaction setAnimationDuration:0];
     _playerLayer.frame = self.bounds;
     [CATransaction commit];
-    NSLog(@"godwin: No Controls Added");
   }
 }
 
@@ -1585,6 +1602,97 @@ static int const RCTVideoUnset = -1;
   NSArray *array = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
   return array[0];
 }
+
+/*👑Godwin's Prop set methods*/
+
+- (void)setPlayBtnImg:(NSDictionary *)playBtnImg
+{
+  _playBtnImg = playBtnImg;
+  [self applyModifiers];
+}
+
+- (void)setPauseBtnImg:(NSDictionary *)pauseBtnImg
+{
+  _pauseBtnImg = pauseBtnImg;
+  [self applyModifiers];
+}
+
+/*********/
+
+/*👑Godwin's player helper methods*/
+
+-(NSString *)convertToString:(NSDictionary *) dictionary{
+  //* Converts Source dictionary to json String
+  NSError * err;
+  NSData *gSoruce = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&err];
+  NSString *sourceStr = [[NSString alloc] initWithData:gSoruce encoding:NSUTF8StringEncoding];
+  return sourceStr;
+}
+
+
+/**********/
+
+/*
+ * 👑Godwin's Player Controls Begin....
+ */
+-(void)drawGodwinzVideoControls{
+  NSLog(@"godwin:✍🏻 Drawing Godwin's Video Controls...");
+  
+  // Drawing Overlay
+  controlsOverlay = [[UIView alloc] initWithFrame:self.bounds];
+  controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
+                                                    green:0.0f/255.0f
+                                                     blue:0.0f/255.0f
+                                                    alpha:0.0f];
+  toggleControlsOnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleControlsOnTap:)];
+  [controlsOverlay addGestureRecognizer:toggleControlsOnTap];
+  
+  
+  // Drawing Play/Pause Button
+  PlayBtnImg = [RCTConvert UIImage:_playBtnImg];
+  PauseBtnImg = [RCTConvert UIImage:_pauseBtnImg];
+  PlayPauseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+  PlayPauseButton.frame = CGRectMake((self.frame.size.width / 2) - 25, (self.frame.size.height / 2) - 25, 50, 50);
+  [PlayPauseButton setImage:PauseBtnImg forState:UIControlStateNormal];
+  [PlayPauseButton addTarget:self action:@selector(playPauseTapEvent) forControlEvents:UIControlEventTouchUpInside];
+
+  
+  // Appending all the controls to overlay view
+  [self addSubview:controlsOverlay];
+  [controlsOverlay addSubview:PlayPauseButton];
+}
+
+-(void)toggleControlsOnTap:(UITapGestureRecognizer *)event {
+  NSLog(@"godwin: User kissed the player.");
+  showingControls = !showingControls;
+  if(showingControls){
+    controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
+                                                      green:0.0f/255.0f
+                                                       blue:0.0f/255.0f
+                                                      alpha:0.5f];
+  }else{
+    controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
+                                                      green:0.0f/255.0f
+                                                       blue:0.0f/255.0f
+                                                      alpha:0.0f];
+  }
+}
+
+-(void)playPauseTapEvent{
+  _paused = !_paused;
+  if(_paused){
+    NSLog(@"godwin:⏸ Attempting to pause the video");
+    [PlayPauseButton setImage:PlayBtnImg forState:UIControlStateNormal];
+  }else{
+    NSLog(@"godwin:▶️ Attempting to play the video");
+    [PlayPauseButton setImage:PauseBtnImg forState:UIControlStateNormal];
+  }
+  [self setPaused: _paused];
+}
+
+
+ /**************/
+
 @end
 
 
@@ -1648,6 +1756,13 @@ RCT_EXPORT_VIEW_PROPERTY(onPlaybackStalled, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPlaybackResume, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPlaybackRateChange, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onVideoExternalPlaybackChange, RCTBubblingEventBlock);
+
+/*Props Added by 👑Godwin*/
+
+RCT_EXPORT_VIEW_PROPERTY(playBtnImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(pauseBtnImg, NSDictionary);
+
+/*********/
 RCT_REMAP_METHOD(save,
                  options:(NSDictionary *)options
                  reactTag:(nonnull NSNumber *)reactTag
