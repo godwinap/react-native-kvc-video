@@ -37,17 +37,37 @@ static int const RCTVideoUnset = -1;
   NSURL *_videoURL;
   
   /* Vars defined by 👑Godwin*/
-  
   UIView *controlsOverlay;
+  UIView *detailsContainer;
+  UIView *controlsContainer;
+  UIView *ReactSubView;
   UITapGestureRecognizer  *toggleControlsOnTap;
-  UITapGestureRecognizer  *playPauseTapEvent;
   BOOL showingControls;
   NSDictionary * _playBtnImg;
   NSDictionary * _pauseBtnImg;
   UIImage *PlayBtnImg;
   UIImage *PauseBtnImg;
   UIButton *PlayPauseButton;
-  
+  NSDictionary * _rewindBtnImg;
+  NSDictionary * _forwardBtnImg;
+  UIImage *RewindBtnImg;
+  UIImage *ForwardBtnImg;
+  UIButton *RewindButton;
+  UIButton *ForwardButton;
+  float _rewindAndForwardInterval;
+  UISlider *Seekbar;
+  NSDictionary * _seekbarCursorImg;
+  NSDictionary * _seekbarCursorActiveImg;
+  UIImage *SeekbarCursorImg;
+  UIImage *SeekbarCursorActiveImg;
+  NSNumber *_seekbarMaxTint;
+  NSNumber *_seekbarMinTint;
+  UITextView *CurrentTimeTextView;
+  UITextView *DurationTextView;
+  NSDictionary *_fullscreenImg;
+  UIImage *FullscreenImg;
+  UIButton *FullscreenButton;
+  NSInteger currentOrientation;
   
   /**************/
   
@@ -124,12 +144,13 @@ static int const RCTVideoUnset = -1;
     _allowsExternalPlayback = YES;
     _playWhenInactive = false;
     _pictureInPicture = false;
-    _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
+    _ignoreSilentSwitch = @"ignore"; // inherit, ignore, obey
     
     
     /* 👑Godwin's Var inits*/
     showingControls = false;
-    
+    _rewindAndForwardInterval = 10;
+    currentOrientation = 0;
     /********/
 #if TARGET_OS_IOS
     _restoreUserInterfaceForPIPStopCompletionHandler = NULL;
@@ -156,6 +177,12 @@ static int const RCTVideoUnset = -1;
                                              selector:@selector(audioRouteChanged:)
                                                  name:AVAudioSessionRouteChangeNotification
                                                object:nil];
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter]
+     addObserver:self selector:@selector(orientationChanged:)
+     name:UIDeviceOrientationDidChangeNotification
+     object:[UIDevice currentDevice]];
   }
   
   return self;
@@ -286,10 +313,15 @@ static int const RCTVideoUnset = -1;
   CMTime currentTime = _player.currentTime;
   const Float64 duration = CMTimeGetSeconds(playerDuration);
   const Float64 currentTimeSecs = CMTimeGetSeconds(currentTime);
-  
   [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTVideo_progress" object:nil userInfo:@{@"progress": [NSNumber numberWithDouble: currentTimeSecs / duration]}];
   
   if( currentTimeSecs >= 0 && self.onVideoProgress) {
+    
+    /* update 👑Godwin's Video Seekbar progress over here 👇🏻 */
+    [self syncSeekbar];
+    [CurrentTimeTextView setText:[self timeFormatted:CMTimeGetSeconds(currentTime)]];
+    /*******/
+    
     self.onVideoProgress(@{
                            @"currentTime": [NSNumber numberWithFloat:CMTimeGetSeconds(currentTime)],
                            @"playableDuration": [self calculatePlayableDuration],
@@ -331,6 +363,8 @@ static int const RCTVideoUnset = -1;
   CMTimeRange timeRange = [self playerItemSeekableTimeRange];
   if (CMTIME_IS_NUMERIC(timeRange.duration))
   {
+    // Setting the Time dutaion for `DurationTextView` of 👑Godwin's Vidoe controls.
+    [DurationTextView setText:[self timeFormatted:CMTimeGetSeconds(timeRange.duration)]];
     return [NSNumber numberWithFloat:CMTimeGetSeconds(timeRange.duration)];
   }
   return [NSNumber numberWithInteger:0];
@@ -498,7 +532,7 @@ static int const RCTVideoUnset = -1;
   NSLog(@"%@", [NSString stringWithFormat:@"godwin:🥳 KVC Video Started %@", [self convertToString:source]]);
   bool isNetwork = [RCTConvert BOOL:[source objectForKey:@"isNetwork"]];
   bool isAsset = [RCTConvert BOOL:[source objectForKey:@"isAsset"]];
-  bool shouldCache = [RCTConvert BOOL:[source objectForKey:@"shouldCache"]];
+//  bool shouldCache = [RCTConvert BOOL:[source objectForKey:@"shouldCache"]];
   NSString *uri = [source objectForKey:@"uri"];
   NSString *type = [source objectForKey:@"type"];
   if (!uri || [uri isEqualToString:@""]) {
@@ -695,6 +729,10 @@ static int const RCTVideoUnset = -1;
                              @"audioTracks": [self getAudioTrackInfo],
                              @"textTracks": [self getTextTrackInfo],
                              @"target": self.reactTag});
+          
+          // Start drawing 👑Godwin's Player Controls over here. 👇🏻
+          [self drawGodwinzVideoControls];
+        
         }
         _videoLoadStarted = NO;
         
@@ -1329,7 +1367,7 @@ static int const RCTVideoUnset = -1;
   if( _player )
   {
     _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
-    _playerLayer.frame = self.bounds;
+    [_playerLayer setFrame:CGRectMake(0, 0, self.frame.size.width, (self.frame.size.width * 9) / 16 )];
     _playerLayer.needsDisplayOnBoundsChange = YES;
     
     // to prevent video from being animated when resizeMode is 'cover'
@@ -1362,8 +1400,6 @@ static int const RCTVideoUnset = -1;
       [_playerViewController.view removeFromSuperview];
       _playerViewController = nil;
       [self usePlayerLayer];
-      // Start drawing 👑Godwin's Player Controls over here. 👇🏻
-      [self drawGodwinzVideoControls];
     }
   }
 }
@@ -1450,17 +1486,14 @@ static int const RCTVideoUnset = -1;
   // That can only be in the context of playerViewController.
   if( !_controls && !_playerLayer && !_playerViewController )
   {
-    [self setControls:true];
+//    [self setControls:true];
+      ReactSubView = view;
   }
   
   if( _controls )
   {
     view.frame = self.bounds;
     [_playerViewController.contentOverlayView insertSubview:view atIndex:atIndex];
-  }
-  else
-  {
-    RCTLogError(@"video cannot have any subviews");
   }
   return;
 }
@@ -1494,7 +1527,6 @@ static int const RCTVideoUnset = -1;
   {
     [CATransaction begin];
     [CATransaction setAnimationDuration:0];
-    _playerLayer.frame = self.bounds;
     [CATransaction commit];
   }
 }
@@ -1617,6 +1649,53 @@ static int const RCTVideoUnset = -1;
   [self applyModifiers];
 }
 
+- (void)setRewindAndForwardInterval:(float)rewindAndForwardInterval
+{
+  _rewindAndForwardInterval = rewindAndForwardInterval;
+  [self applyModifiers];
+}
+
+- (void)setRewindBtnImg:(NSDictionary *)rewindBtnImg
+{
+  _rewindBtnImg = rewindBtnImg;
+  [self applyModifiers];
+}
+
+- (void)setForwardBtnImg:(NSDictionary *)forwardBtnImg
+{
+  _forwardBtnImg  = forwardBtnImg;
+  [self applyModifiers];
+}
+
+- (void)setSeekbarCursorImg:(NSDictionary *)seekbarCursorImg
+{
+  _seekbarCursorImg  = seekbarCursorImg;
+  [self applyModifiers];
+}
+- (void)setSeekbarCursorActiveImg:(NSDictionary *)seekbarCursorActiveImg
+{
+  _seekbarCursorActiveImg  = seekbarCursorActiveImg;
+  [self applyModifiers];
+}
+
+- (void)setSeekbarMaxTint:(NSNumber *)seekbarMaxTint
+{
+  _seekbarMaxTint  = seekbarMaxTint;
+  [self applyModifiers];
+}
+
+- (void)setSeekbarMinTint:(NSNumber *)seekbarMinTint
+{
+  _seekbarMinTint  = seekbarMinTint;
+  [self applyModifiers];
+}
+
+- (void)setFullscreenImg:(NSDictionary *)fullscreenImg
+{
+  _fullscreenImg  = fullscreenImg;
+  [self applyModifiers];
+}
+
 /*********/
 
 /*👑Godwin's player helper methods*/
@@ -1629,17 +1708,31 @@ static int const RCTVideoUnset = -1;
   return sourceStr;
 }
 
+-(Float64 *)getCurrentTime:(Float64 *)currentTime{
+  return currentTime;
+}
+
+- (NSString *)timeFormatted:(int)totalSeconds
+{
+  
+  int seconds = totalSeconds % 60;
+  int minutes = (totalSeconds / 60) % 60;
+  int hours = totalSeconds / 3600;
+  
+  return [NSString stringWithFormat:@"%02d:%02d:%02d",hours, minutes, seconds];
+}
+
 
 /**********/
 
 /*
- * 👑Godwin's Player Controls Begin....
+ * 👑Godwin's Video Controls Begin....
  */
 -(void)drawGodwinzVideoControls{
   NSLog(@"godwin:✍🏻 Drawing Godwin's Video Controls...");
   
   // Drawing Overlay
-  controlsOverlay = [[UIView alloc] initWithFrame:self.bounds];
+  controlsOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, (self.frame.size.width * 9) / 16 )];
   controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
                                                     green:0.0f/255.0f
                                                      blue:0.0f/255.0f
@@ -1647,34 +1740,112 @@ static int const RCTVideoUnset = -1;
   toggleControlsOnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleControlsOnTap:)];
   [controlsOverlay addGestureRecognizer:toggleControlsOnTap];
   
+  // Drawing detailsContainer
+  detailsContainer = [[UIView alloc] initWithFrame:CGRectMake(0, (self.frame.size.width * 9) / 16 , self.frame.size.width, self.frame.size.height - (self.frame.size.width * 9) / 16 )];
+  
+  // Drawing controls container
+  controlsContainer = [[UIView alloc] initWithFrame:self.bounds];
+  [controlsContainer setHidden:true];
+  
   
   // Drawing Play/Pause Button
   PlayBtnImg = [RCTConvert UIImage:_playBtnImg];
   PauseBtnImg = [RCTConvert UIImage:_pauseBtnImg];
-  PlayPauseButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-  PlayPauseButton.frame = CGRectMake((self.frame.size.width / 2) - 25, (self.frame.size.height / 2) - 25, 50, 50);
+  PlayPauseButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  PlayPauseButton.backgroundColor = [UIColor clearColor];
+  PlayPauseButton.frame = CGRectMake((controlsOverlay.frame.size.width / 2) - 25, (controlsOverlay.frame.size.height / 2) - 25, 50, 50);
   [PlayPauseButton setImage:PauseBtnImg forState:UIControlStateNormal];
   [PlayPauseButton addTarget:self action:@selector(playPauseTapEvent) forControlEvents:UIControlEventTouchUpInside];
-
   
-  // Appending all the controls to overlay view
+  // Drawing Rewind Button
+  RewindBtnImg =[RCTConvert UIImage:_rewindBtnImg];
+  RewindButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  RewindButton.backgroundColor = [UIColor clearColor];
+  RewindButton.frame = CGRectMake((controlsOverlay.frame.size.width / 8) - 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50);
+  [RewindButton setImage:RewindBtnImg forState:UIControlStateNormal];
+  [RewindButton addTarget:self action:@selector(rewindVideo) forControlEvents:UIControlEventTouchUpInside];
+  
+  // Drawing Forward Button
+  ForwardBtnImg =[RCTConvert UIImage:_forwardBtnImg];
+  ForwardButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  ForwardButton.backgroundColor = [UIColor clearColor];
+  ForwardButton.frame = CGRectMake((controlsOverlay.frame.size.width / 1.3333333333333333) + 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50);
+  [ForwardButton setImage:ForwardBtnImg forState:UIControlStateNormal];
+  [ForwardButton addTarget:self action:@selector(forwardVideo) forControlEvents:UIControlEventTouchUpInside];
+  
+  // Drawing Seekbar
+  Seekbar = [[UISlider alloc] initWithFrame:CGRectMake(60, controlsOverlay.frame.size.height - 50, (controlsOverlay.frame.size.width - 120) - 50, 50)];
+  SeekbarCursorImg = [RCTConvert UIImage:_seekbarCursorImg];
+  SeekbarCursorActiveImg = [RCTConvert UIImage:_seekbarCursorActiveImg];
+  [Seekbar setMaximumTrackTintColor:[RCTConvert UIColor:_seekbarMaxTint]];
+  [Seekbar setMinimumTrackTintColor:[RCTConvert UIColor:_seekbarMinTint]];
+  [Seekbar setThumbImage:SeekbarCursorImg forState:UIControlStateNormal];
+  [Seekbar setThumbImage:SeekbarCursorActiveImg forState:UIControlStateHighlighted];
+    /* Adding on drag event*/
+  [Seekbar addTarget:self action:@selector(beginSeek) forControlEvents:UIControlEventTouchDragInside];
+    /* Adding on drag end and the slider value has changed event*/
+  [Seekbar addTarget:self action:@selector(endSeek:) forControlEvents:UIControlEventValueChanged];
+  
+  //Drawing current time UITextView
+  CurrentTimeTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, controlsOverlay.frame.size.height - 40, 60, 50)];
+  [CurrentTimeTextView setTextColor:[UIColor whiteColor]];
+  [CurrentTimeTextView setBackgroundColor:[UIColor colorWithRed:0.0f/255.0f
+                                                          green:0.0f/255.0f
+                                                           blue:0.0f/255.0f
+                                                          alpha:0.0f]];
+  [CurrentTimeTextView setText:@"00:00:00"];
+  [CurrentTimeTextView setTextAlignment:NSTextAlignmentCenter];
+  
+  //Drawing duration time UITextView
+  DurationTextView = [[UITextView alloc] initWithFrame:CGRectMake(controlsOverlay.frame.size.width - (60 + 50), controlsOverlay.frame.size.height - 40, 60, 50)];
+  [DurationTextView setTextColor:[UIColor whiteColor]];
+  [DurationTextView setText:@"00:00:00"];
+  [DurationTextView setTextAlignment:NSTextAlignmentCenter];
+  [DurationTextView setBackgroundColor:[UIColor colorWithRed:0.0f/255.0f
+                                                          green:0.0f/255.0f
+                                                           blue:0.0f/255.0f
+                                                       alpha:0.0f]];
+  
+  // Drawing fullscreen button
+  FullscreenImg =[RCTConvert UIImage:_fullscreenImg];
+  FullscreenButton = [UIButton buttonWithType:UIButtonTypeCustom];
+  FullscreenButton.backgroundColor = [UIColor clearColor];
+  FullscreenButton.frame = CGRectMake(controlsOverlay.frame.size.width - 50, controlsOverlay.frame.size.height - 50, 50, 50);
+  [FullscreenButton setImage:FullscreenImg forState:UIControlStateNormal];
+  [FullscreenButton addTarget:self action:@selector(videoTakeover) forControlEvents:UIControlEventTouchUpInside];
+  
+  // Appending all controls to `controls container` subview
   [self addSubview:controlsOverlay];
-  [controlsOverlay addSubview:PlayPauseButton];
+  [self addSubview:detailsContainer];
+  [controlsOverlay addSubview:controlsContainer];
+  [controlsContainer addSubview:PlayPauseButton];
+  [controlsContainer addSubview:RewindButton];
+  [controlsContainer addSubview:ForwardButton];
+  [controlsContainer addSubview:Seekbar];
+  [controlsContainer addSubview:CurrentTimeTextView];
+  [controlsContainer addSubview:DurationTextView];
+  [controlsContainer addSubview:FullscreenButton];
+  
+  // Apending all react children passed to 👑Godwin's KVCVideo Tag to the details container subview.
+  [detailsContainer addSubview:ReactSubView];
 }
 
 -(void)toggleControlsOnTap:(UITapGestureRecognizer *)event {
-  NSLog(@"godwin: User kissed the player.");
+  NSLog(@"godwin:💋 User kissed the player.");
+  [self bringSubviewToFront:controlsOverlay];
   showingControls = !showingControls;
   if(showingControls){
     controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
                                                       green:0.0f/255.0f
                                                        blue:0.0f/255.0f
                                                       alpha:0.5f];
+    [controlsContainer setHidden:false];
   }else{
     controlsOverlay.backgroundColor = [UIColor colorWithRed:0.0f/255.0f
                                                       green:0.0f/255.0f
                                                        blue:0.0f/255.0f
                                                       alpha:0.0f];
+    [controlsContainer setHidden:true];
   }
 }
 
@@ -1690,6 +1861,133 @@ static int const RCTVideoUnset = -1;
   [self setPaused: _paused];
 }
 
+-(void)rewindVideo{
+  NSLog(@"godwin: current time: %f", [self getCurrentTime]);
+  [self getCurrentTime] > _rewindAndForwardInterval ? [self setCurrentTime:[self getCurrentTime] - _rewindAndForwardInterval] : [self setCurrentTime:0];
+}
+
+-(void)forwardVideo{
+  float totalDuration = CMTimeGetSeconds([self playerItemDuration]);
+  totalDuration > [self getCurrentTime] + _rewindAndForwardInterval ? [self setCurrentTime:[self getCurrentTime] + _rewindAndForwardInterval] : [self setCurrentTime:totalDuration];
+}
+
+// Set the seekbar based on the player current time.
+- (void)syncSeekbar
+{
+  CMTime playerDuration = [self playerItemDuration];
+  if (CMTIME_IS_INVALID(playerDuration))
+  {
+    [Seekbar setMinimumValue:0.0];
+    return;
+  }
+  
+  double duration = CMTimeGetSeconds(playerDuration);
+  if (isfinite(duration) && (duration > 0))
+  {
+    float minValue = [Seekbar minimumValue];
+    float maxValue = [Seekbar maximumValue];
+    double time = CMTimeGetSeconds([_player currentTime]);
+    [Seekbar setValue:(maxValue - minValue) * time / duration + minValue];
+  }
+}
+
+// The user is dragging 👑Godwin's seekbar controller thumb to scrub through the video.
+-(void)beginSeek{
+  NSLog(@"godwin:💨 Trying to scrub through the video");
+  /* Remove the seeksyn observer */
+  [self removePlayerTimeObserver];
+}
+// The user has finished dragging 👑Godwin's seekbar controller thumb, must update the video to the new seek time.
+-(void)endSeek:(UISlider *)slider{
+  NSLog(@"godwin:🔃 Seeking finished, must update the video current time");
+  CMTime playerDuration = [self playerItemDuration];
+  if (CMTIME_IS_INVALID(playerDuration))
+  {
+    return;
+  }
+  double duration = CMTimeGetSeconds(playerDuration);
+  if (isfinite(duration))
+  {
+    CGFloat width = CGRectGetWidth([Seekbar bounds]);
+    double tolerance = 0.5f * duration / width;
+    double seekTime = duration * slider.value;
+    [self setSeek:@{@"time":@(seekTime), @"tolerance": @(tolerance)}];
+  }
+}
+
+-(void)videoTakeover{
+  NSLog(@"godwin:🖥 Video going to full screen");
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  if(orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight){
+    [[UIDevice currentDevice] setValue:[NSNumber numberWithInt:UIInterfaceOrientationPortrait] forKey:@"orientation"];
+  }else{
+    [[UIDevice currentDevice] setValue:[NSNumber numberWithInt:UIInterfaceOrientationLandscapeRight] forKey:@"orientation"];
+  }
+}
+
+-(void)setFramesForLandscape{
+  CGRect LandscapeFrame = CGRectMake(0, 0, self.frame.size.height, self.frame.size.width);
+  [_playerLayer setFrame:LandscapeFrame];
+  [controlsOverlay setFrame:LandscapeFrame];
+  [controlsContainer setFrame:LandscapeFrame];
+  [PlayPauseButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 2) - 25, (controlsOverlay.frame.size.height / 2) - 25, 50, 50)];
+  [RewindButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 8) - 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50)];
+  [ForwardButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 1.3333333333333333) + 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50)];
+  [Seekbar setFrame:CGRectMake(60, controlsOverlay.frame.size.height - 50, (controlsOverlay.frame.size.width - 120) - 50, 50)];
+  [CurrentTimeTextView setFrame:CGRectMake(0, controlsOverlay.frame.size.height - 40, 60, 50)];
+  [DurationTextView setFrame:CGRectMake(controlsOverlay.frame.size.width - (60 + 50), controlsOverlay.frame.size.height - 40, 60, 50)];
+  [FullscreenButton setFrame:CGRectMake(controlsOverlay.frame.size.width - 50, controlsOverlay.frame.size.height - 50, 50, 50)];
+}
+
+-(void)setFramesForPotrait{
+  CGRect PotraitFrame = CGRectMake(0, 0, self.frame.size.height, (self.frame.size.height * 9) / 16 );
+  [_playerLayer setFrame:PotraitFrame];
+  [controlsOverlay setFrame:PotraitFrame];
+  [controlsContainer setFrame:PotraitFrame];
+  [PlayPauseButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 2) - 25, (controlsOverlay.frame.size.height / 2) - 25, 50, 50)];
+  [RewindButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 8) - 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50)];
+  [ForwardButton setFrame:CGRectMake((controlsOverlay.frame.size.width / 1.3333333333333333) + 25, (controlsOverlay.frame.size.height / 2) - 25 , 50, 50)];
+  [Seekbar setFrame:CGRectMake(60, controlsOverlay.frame.size.height - 50, (controlsOverlay.frame.size.width - 120) - 50, 50)];
+  [CurrentTimeTextView setFrame:CGRectMake(0, controlsOverlay.frame.size.height - 40, 60, 50)];
+  [DurationTextView setFrame:CGRectMake(controlsOverlay.frame.size.width - (60 + 50), controlsOverlay.frame.size.height - 40, 60, 50)];
+  [FullscreenButton setFrame:CGRectMake(controlsOverlay.frame.size.width - 50, controlsOverlay.frame.size.height - 50, 50, 50)];
+}
+
+- (void) orientationChanged:(NSNotification *)note
+{
+  UIDevice * device = note.object;
+  currentOrientation == 0 ? currentOrientation = device.orientation : false;
+  if (currentOrientation != device.orientation) {
+    switch(device.orientation)
+    {
+        case UIDeviceOrientationPortrait:
+          NSLog(@"godwin: 🎊 Screen changed to UIDeviceOrientationPortrait");
+          [self setFramesForPotrait];
+          currentOrientation = UIDeviceOrientationPortrait;
+        break;
+        
+        case UIDeviceOrientationPortraitUpsideDown:
+          NSLog(@"godwin: 🎊 Screen changed to UIDeviceOrientationPortraitUpsideDown");
+          currentOrientation = UIDeviceOrientationPortraitUpsideDown;
+        break;
+        
+        case UIDeviceOrientationLandscapeLeft:
+          NSLog(@"godwin: 🎊 Screen changed to UIDeviceOrientationLandscapeLeft");
+          [self setFramesForLandscape];
+          currentOrientation = UIDeviceOrientationLandscapeLeft;
+        break;
+        
+        case UIDeviceOrientationLandscapeRight:
+          NSLog(@"godwin: 🎊 Screen changed to UIDeviceOrientationLandscapeRight");
+          [self setFramesForLandscape];
+          currentOrientation = UIDeviceOrientationLandscapeRight;
+        break;
+        
+      default:
+        break;
+    };
+  }
+}
 
  /**************/
 
@@ -1761,6 +2059,15 @@ RCT_EXPORT_VIEW_PROPERTY(onVideoExternalPlaybackChange, RCTBubblingEventBlock);
 
 RCT_EXPORT_VIEW_PROPERTY(playBtnImg, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(pauseBtnImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(rewindBtnImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(forwardBtnImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(rewindAndForwardInterval, float);
+RCT_EXPORT_VIEW_PROPERTY(seekbarCursorImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(seekbarCursorActiveImg, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(seekbarMaxTint, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(seekbarMinTint, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(fullscreenImg, NSDictionary);
+
 
 /*********/
 RCT_REMAP_METHOD(save,
