@@ -1788,6 +1788,7 @@ static int const RCTVideoUnset = -1;
   
   //Drawing current time UITextView
   CurrentTimeTextView = [[UITextView alloc] initWithFrame:CGRectMake(0, controlsOverlay.frame.size.height - 40, 60, 50)];
+  [CurrentTimeTextView setUserInteractionEnabled:NO];
   [CurrentTimeTextView setTextColor:[UIColor whiteColor]];
   [CurrentTimeTextView setBackgroundColor:[UIColor colorWithRed:0.0f/255.0f
                                                           green:0.0f/255.0f
@@ -1799,6 +1800,7 @@ static int const RCTVideoUnset = -1;
   //Drawing duration time UITextView
   DurationTextView = [[UITextView alloc] initWithFrame:CGRectMake(controlsOverlay.frame.size.width - (60 + 50), controlsOverlay.frame.size.height - 40, 60, 50)];
   [DurationTextView setTextColor:[UIColor whiteColor]];
+  [DurationTextView setUserInteractionEnabled:NO];
   [DurationTextView setText:@"00:00:00"];
   [DurationTextView setTextAlignment:NSTextAlignmentCenter];
   [DurationTextView setBackgroundColor:[UIColor colorWithRed:0.0f/255.0f
